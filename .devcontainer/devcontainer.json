@@ -3,5 +3,17 @@
 	"image": "mcr.microsoft.com/devcontainers/rust:2-1-trixie",
 	"workspaceFolder": "/work",
 	"workspaceMount": "source=${localWorkspaceFolder},target=/work,type=bind,consistency=cached",
-	"remoteUser": "vscode"
+	"remoteUser": "vscode",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"rust-lang.rust-analyzer",
+				"tamasfe.even-better-toml",
+				"chenxuan.cargo-crate-completer"
+			],
+			"settings": {
+				"rust-analyzer.check.command": "clippy"
+			}
+		}
+	}
 }
