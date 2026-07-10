@@ -5,6 +5,9 @@ fn fib<F>(n: u8) -> F
 where
     F: num_traits::PrimInt + num_traits::Unsigned + MaxFibIndex,
 {
+    if n == 0 {
+        return F::zero();
+    }
     assert!(
         n <= F::MAX_FIB_INDEX,
         "Fibonacci number F({n}) won't fit in {}",
@@ -13,29 +16,25 @@ where
     let two = F::from(2).expect("there can always be 2");
     let mut mask = 1 << (u8::BITS - n.leading_zeros() - 1);
 
-    // F(k)     = fib_k
-    // F(k + 1) = fib_k_1
-    let (mut fib_k, mut fib_k_1) = (F::zero(), F::one());
+    let (mut fib_k, mut fib_k_plus_one) = (F::zero(), F::one());
 
     loop {
-        // F(2k) = fib_2k
-        let fig_2k = fib_k * (two * fib_k_1 - fib_k);
+        let fib_2k = fib_k * (two * fib_k_plus_one - fib_k);
         if mask == 1 && n & mask == 0 {
             // n = 2k, we already have the answer, avoid overfloating F(2k + 1)
-            return fig_2k;
+            return fib_2k;
         }
 
-        // F(2k + 1) = fib_2k_1
-        let fib_2k_1 = fib_k * fib_k + fib_k_1 * fib_k_1;
+        let fib_2k_plus_one = fib_k * fib_k + fib_k_plus_one * fib_k_plus_one;
         if mask == 1 {
             // n = 2k + 1, we already have the answer, avoid overfloating F(2k + 2)
-            return fib_2k_1;
+            return fib_2k_plus_one;
         }
 
-        (fib_k, fib_k_1) = if n & mask == 0 {
-            (fig_2k, fib_2k_1)
+        (fib_k, fib_k_plus_one) = if n & mask == 0 {
+            (fib_2k, fib_2k_plus_one)
         } else {
-            (fib_2k_1, fig_2k + fib_2k_1)
+            (fib_2k_plus_one, fib_2k + fib_2k_plus_one)
         };
         mask >>= 1;
     }
@@ -68,7 +67,7 @@ impl MaxFibIndex for u128 {
 fn main() {
     use num_format::{Locale, ToFormattedString};
 
-    let n = 14;
-    let fib_n: u8 = fib(n);
+    let n = u128::MAX_FIB_INDEX;
+    let fib_n: u128 = fib(n);
     println!("F({n}) = {}", fib_n.to_formatted_string(&Locale::en));
 }
