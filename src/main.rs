@@ -16,7 +16,7 @@ where
         });
     }
     let two = F::from(2).expect("there can always be 2");
-    let mut mask = 1 << (u8::BITS - n.leading_zeros() - 1);
+    let mut mask: u8 = 1 << (u8::BITS - n.leading_zeros() - 1);
 
     let (mut fib_k, mut fib_k_plus_one) = (F::zero(), F::one());
 
