@@ -4,7 +4,7 @@ use thiserror::Error;
 #[expect(clippy::similar_names, reason = "there is a pattern to madness")]
 fn fib<F>(n: u8) -> Result<F, FibError>
 where
-    F: num_traits::PrimInt + num_traits::Unsigned + MaxFibIndex,
+    F: num_traits::PrimInt + num_traits::Unsigned + FibInteger,
 {
     if n == 0 {
         return Ok(F::zero());
@@ -15,13 +15,12 @@ where
             type_name: type_name::<F>(),
         });
     }
-    let two = F::from(2).expect("there can always be 2");
     let mut mask: u8 = 1 << (u8::BITS - n.leading_zeros() - 1);
 
     let (mut fib_k, mut fib_k_plus_one) = (F::zero(), F::one());
 
     loop {
-        let fib_2k = fib_k * (two * fib_k_plus_one - fib_k);
+        let fib_2k = fib_k * (F::TWO * fib_k_plus_one - fib_k);
         if mask == 1 && n & mask == 0 {
             // n = 2k, we already have the answer, avoid overfloating F(2k + 1)
             return Ok(fib_2k);
@@ -48,34 +47,40 @@ enum FibError {
     Overflow { index: u8, type_name: &'static str },
 }
 
-trait MaxFibIndex {
+trait FibInteger {
     const MAX_FIB_INDEX: u8;
+    const TWO: Self;
 }
 
-impl MaxFibIndex for u8 {
+impl FibInteger for u8 {
     const MAX_FIB_INDEX: u8 = 13;
+    const TWO: Self = 2;
 }
 
-impl MaxFibIndex for u16 {
+impl FibInteger for u16 {
     const MAX_FIB_INDEX: u8 = 24;
+    const TWO: Self = 2;
 }
 
-impl MaxFibIndex for u32 {
+impl FibInteger for u32 {
     const MAX_FIB_INDEX: u8 = 47;
+    const TWO: Self = 2;
 }
 
-impl MaxFibIndex for u64 {
+impl FibInteger for u64 {
     const MAX_FIB_INDEX: u8 = 93;
+    const TWO: Self = 2;
 }
 
-impl MaxFibIndex for u128 {
+impl FibInteger for u128 {
     const MAX_FIB_INDEX: u8 = 186;
+    const TWO: Self = 2;
 }
 
 fn main() {
     use num_format::{Locale, ToFormattedString};
 
-    let n = u128::MAX_FIB_INDEX + 1;
+    let n = u128::MAX_FIB_INDEX;
     let fib_n: u128 = fib(n).unwrap_or_else(|error| panic!("{error}"));
     println!("F({n}) = {}", fib_n.to_formatted_string(&Locale::en));
 }
