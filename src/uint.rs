@@ -17,6 +17,10 @@ impl FibInteger for U256 {
         U256::from(1)
     }
 
+    fn max_fibonacci_index() -> Option<usize> {
+        None
+    }
+
     fn fits_fibonacci(index: usize) -> FibFit {
         if index <= 250 {
             FibFit::Yes

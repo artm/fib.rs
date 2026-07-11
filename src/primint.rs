@@ -16,8 +16,12 @@ macro_rules! impl_fib_integer {
                     2
                 }
 
+                fn max_fibonacci_index() -> Option<usize> {
+                    Some($max_index)
+                }
+
                 fn fits_fibonacci(index: usize) -> FibFit {
-                    if index <= $max_index {
+                    if index <= Self::max_fibonacci_index().expect("primitive unsigned integers know their max index") {
                         FibFit::Yes
                     } else {
                         FibFit::No

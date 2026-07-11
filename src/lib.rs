@@ -3,6 +3,7 @@ use std::ops::{Add, Mul, Sub};
 use thiserror::Error;
 
 pub mod primint;
+pub mod simple;
 pub mod uint;
 
 #[expect(
@@ -89,6 +90,7 @@ pub trait FibInteger:
 {
     fn zero() -> Self;
     fn one() -> Self;
+    fn max_fibonacci_index() -> Option<usize>;
     fn fits_fibonacci(index: usize) -> FibFit;
 
     #[must_use]
