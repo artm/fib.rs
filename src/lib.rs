@@ -1,5 +1,3 @@
-#![allow(clippy::missing_errors_doc, reason = "not the focus of this lesson")]
-
 use std::any::type_name;
 use std::ops::{Add, Mul, Sub};
 use thiserror::Error;
@@ -7,7 +5,25 @@ use thiserror::Error;
 pub mod primint;
 pub mod uint;
 
-#[expect(clippy::similar_names, reason = "there is a pattern to madness")]
+#[expect(
+    clippy::similar_names,
+    reason = "Though this be madness, yet there is method in 't"
+)]
+/// Computes the `n`th Fibonacci number using the fast-doubling algorithm.
+///
+/// The algorithm performs $O(\log n)$ arithmetic operations by maintaining
+/// the consecutive values `F(k)` and `F(k + 1)` while processing the bits of
+/// `n` from most significant to least significant.
+///
+/// Returns [`FibError::Overflow`] when `F` reports that the requested value
+/// cannot fit. A [`FibFit::Unknown`] result currently continues with the
+/// unchecked calculation and may therefore overflow according to `F`'s
+/// arithmetic behavior.
+///
+/// # Errors
+///
+/// Returns [`FibError::Overflow`] if the requested Fibonacci number does not
+/// fit in `F` according to [`FibInteger::fits_fibonacci`].
 pub fn fib<F>(n: usize) -> Result<F, FibError>
 where
     F: FibInteger,
@@ -34,13 +50,13 @@ where
     loop {
         let fib_2k = fib_k * (F::two() * fib_k_plus_one - fib_k);
         if mask == 1 && n & mask == 0 {
-            // n = 2k, we already have the answer, avoid overfloating F(2k + 1)
+            // n = 2k, we already have the answer, avoid overflowing F(2k + 1)
             return Ok(fib_2k);
         }
 
         let fib_2k_plus_one = fib_k * fib_k + fib_k_plus_one * fib_k_plus_one;
         if mask == 1 {
-            // n = 2k + 1, we already have the answer, avoid overfloating F(2k + 2)
+            // n = 2k + 1, we already have the answer, avoid overflowing F(2k + 2)
             return Ok(fib_2k_plus_one);
         }
 
