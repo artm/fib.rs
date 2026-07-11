@@ -1,6 +1,7 @@
 use std::any::type_name;
 use std::ops::{Add, Mul, Sub};
 use thiserror::Error;
+use uint::construct_uint;
 
 #[expect(clippy::similar_names, reason = "there is a pattern to madness")]
 fn fib<F>(n: usize) -> Result<F, FibError>
@@ -18,7 +19,7 @@ where
             });
         }
         FibFit::Unknown => {
-            todo!("checked version");
+            eprintln!("todo: checked version");
         }
         FibFit::Yes => {}
     }
@@ -149,10 +150,30 @@ impl FibInteger for u128 {
     }
 }
 
-fn main() {
-    use num_format::{Locale, ToFormattedString};
+construct_uint! {
+    pub struct U256(4);
+}
 
-    let n = 186;
-    let fib_n: u128 = fib(n).unwrap_or_else(|error| panic!("{error}"));
-    println!("F({n}) = {}", fib_n.to_formatted_string(&Locale::en));
+impl FibInteger for U256 {
+    fn zero() -> Self {
+        U256::from(0)
+    }
+
+    fn one() -> Self {
+        U256::from(1)
+    }
+
+    fn fits_fibonacci(index: usize) -> FibFit {
+        if index <= 250 {
+            FibFit::Yes
+        } else {
+            FibFit::Unknown
+        }
+    }
+}
+
+fn main() {
+    let n = 250;
+    let fib_n: U256 = fib(n).unwrap_or_else(|error| panic!("{error}"));
+    println!("F({n}) = {fib_n}");
 }
