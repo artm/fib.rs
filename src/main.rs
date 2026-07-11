@@ -1,26 +1,33 @@
 use std::any::type_name;
+use std::ops::{Add, Mul, Sub};
 use thiserror::Error;
 
 #[expect(clippy::similar_names, reason = "there is a pattern to madness")]
 fn fib<F>(n: usize) -> Result<F, FibError>
 where
-    F: num_traits::PrimInt + num_traits::Unsigned + FibInteger,
+    F: FibInteger,
 {
     if n == 0 {
         return Ok(F::zero());
     }
-    if n > F::MAX_FIB_INDEX {
-        return Err(FibError::Overflow {
-            index: n,
-            type_name: type_name::<F>(),
-        });
+    match F::fits_fibonacci(n) {
+        FibFit::No => {
+            return Err(FibError::Overflow {
+                index: n,
+                type_name: type_name::<F>(),
+            });
+        }
+        FibFit::Unknown => {
+            todo!("checked version");
+        }
+        FibFit::Yes => {}
     }
     let mut mask: usize = 1 << (usize::BITS - n.leading_zeros() - 1);
 
     let (mut fib_k, mut fib_k_plus_one) = (F::zero(), F::one());
 
     loop {
-        let fib_2k = fib_k * (F::TWO * fib_k_plus_one - fib_k);
+        let fib_2k = fib_k * (F::two() * fib_k_plus_one - fib_k);
         if mask == 1 && n & mask == 0 {
             // n = 2k, we already have the answer, avoid overfloating F(2k + 1)
             return Ok(fib_2k);
@@ -50,40 +57,102 @@ enum FibError {
     },
 }
 
-trait FibInteger {
-    const MAX_FIB_INDEX: usize;
-    const TWO: Self;
+enum FibFit {
+    Yes,
+    No,
+    Unknown,
+}
+
+trait FibInteger:
+    Sized + Copy + Add<Self, Output = Self> + Mul<Self, Output = Self> + Sub<Self, Output = Self>
+{
+    fn zero() -> Self;
+    fn one() -> Self;
+    fn fits_fibonacci(index: usize) -> FibFit;
+
+    fn two() -> Self {
+        Self::one() + Self::one()
+    }
 }
 
 impl FibInteger for u8 {
-    const MAX_FIB_INDEX: usize = 13;
-    const TWO: Self = 2;
+    fn zero() -> Self {
+        0
+    }
+
+    fn one() -> Self {
+        1
+    }
+
+    fn fits_fibonacci(index: usize) -> FibFit {
+        if index <= 13 { FibFit::Yes } else { FibFit::No }
+    }
 }
 
 impl FibInteger for u16 {
-    const MAX_FIB_INDEX: usize = 24;
-    const TWO: Self = 2;
+    fn zero() -> Self {
+        0
+    }
+
+    fn one() -> Self {
+        1
+    }
+
+    fn fits_fibonacci(index: usize) -> FibFit {
+        if index <= 24 { FibFit::Yes } else { FibFit::No }
+    }
 }
 
 impl FibInteger for u32 {
-    const MAX_FIB_INDEX: usize = 47;
-    const TWO: Self = 2;
+    fn zero() -> Self {
+        0
+    }
+
+    fn one() -> Self {
+        1
+    }
+
+    fn fits_fibonacci(index: usize) -> FibFit {
+        if index <= 47 { FibFit::Yes } else { FibFit::No }
+    }
 }
 
 impl FibInteger for u64 {
-    const MAX_FIB_INDEX: usize = 93;
-    const TWO: Self = 2;
+    fn zero() -> Self {
+        0
+    }
+
+    fn one() -> Self {
+        1
+    }
+
+    fn fits_fibonacci(index: usize) -> FibFit {
+        if index <= 93 { FibFit::Yes } else { FibFit::No }
+    }
 }
 
 impl FibInteger for u128 {
-    const MAX_FIB_INDEX: usize = 186;
-    const TWO: Self = 2;
+    fn zero() -> Self {
+        0
+    }
+
+    fn one() -> Self {
+        1
+    }
+
+    fn fits_fibonacci(index: usize) -> FibFit {
+        if index <= 186 {
+            FibFit::Yes
+        } else {
+            FibFit::No
+        }
+    }
 }
 
 fn main() {
     use num_format::{Locale, ToFormattedString};
 
-    let n = u128::MAX_FIB_INDEX;
+    let n = 186;
     let fib_n: u128 = fib(n).unwrap_or_else(|error| panic!("{error}"));
     println!("F({n}) = {}", fib_n.to_formatted_string(&Locale::en));
 }
