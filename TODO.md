@@ -14,7 +14,7 @@ This project is being developed as a learning exercise. The following plans are 
   - Keep it straightforward rather than optimized.
   - Compare the fast-doubling implementation against it for values that fit.
 
-- [ ] Add fuzz tests.
+- [x] Add fuzz tests.
   - Compare fast doubling with the simpler iterative implementation across many indices and supported types.
   - Test various combinations of integer types and indices.
   - Check useful invariants, including:

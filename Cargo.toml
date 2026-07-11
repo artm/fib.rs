@@ -6,3 +6,6 @@ edition = "2024"
 [dependencies]
 thiserror = "2.0"
 uint = "0.8"
+
+[dev-dependencies]
+proptest = "1"

@@ -70,7 +70,7 @@ where
     }
 }
 
-#[derive(Debug, Error)]
+#[derive(Debug, Error, PartialEq, Eq)]
 pub enum FibError {
     #[error("Fibonacci number F({index}) won't fit in {type_name}")]
     Overflow {
