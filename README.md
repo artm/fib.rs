@@ -30,6 +30,70 @@ $$
 
 By examining the bits of the requested index, fast doubling computes `F(n)` in $O(\log n)$ arithmetic steps while using constant additional algorithmic space.
 
+### Deriving Fibonacci fast-doubling identities
+
+Start with the Fibonacci recurrence:
+
+$$
+F(n+2) = F(n) + F(n+1)
+$$
+
+The following table shows the first few values, followed by two consecutive values whose identities we want to extend:
+
+| $n$ | $0$ | $1$ | $2$ | $3$ | $4$ | $5$ | $6$ | $m$ | $m+1$ |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| $F(n)$ | $0$ | $1$ | $1$ | $2$ | $3$ | $5$ | $8$ | $F(m)$ | $F(m+1)$ |
+
+Applying the recurrence repeatedly gives the following expressions in terms of $F(m)$ and $F(m+1)$:
+
+$$
+\begin{aligned}
+F(m+2) &= F(m) + F(m+1) \\
+F(m+3) &= F(m) + 2F(m+1) \\
+F(m+4) &= 2F(m) + 3F(m+1) \\
+F(m+5) &= 3F(m) + 5F(m+1) \\
+F(m+6) &= 5F(m) + 8F(m+1)
+\end{aligned}
+$$
+
+The coefficients are Fibonacci numbers themselves. For example, the coefficients of $F(m+5)$ are $3 = F(4)$ and $5 = F(5)$. This suggests the general identities, for $n \geq 1$:
+
+$$
+F(m+n) = F(n-1)F(m) + F(n)F(m+1)
+$$
+
+$$
+F(m+n+1) = F(n)F(m) + F(n+1)F(m+1)
+$$
+
+These identities can be proved by induction on $n$. They hold for the initial values $n=1$, and advancing $n$ by one applies the Fibonacci recurrence to the two expressions.
+
+Now set $m = n = k$. The first identity becomes:
+
+$$
+F(2k) = F(k-1)F(k) + F(k)F(k+1)
+$$
+
+Using $F(k-1) = F(k+1) - F(k)$, this simplifies to:
+
+$$
+\begin{aligned}
+F(2k) &= F(k)\left(F(k+1)-F(k)\right) + F(k)F(k+1) \\
+	&= F(k)\left(2F(k+1)-F(k)\right)
+\end{aligned}
+$$
+
+The second identity becomes:
+
+$$
+\begin{aligned}
+F(2k+1) &= F(k)F(k) + F(k+1)F(k+1) \\
+	  &= F(k)^2 + F(k+1)^2
+\end{aligned}
+$$
+
+These are the fast-doubling identities used by the implementation. Instead of calculating every Fibonacci number up to the requested index, the algorithm uses the binary digits of the index to repeatedly double the known pair $(F(k), F(k+1))$. This is why the number of arithmetic steps is $O(\log n)$.
+
 ## Project structure
 
 - `src/lib.rs` contains the public Fibonacci API, shared traits, fit information, and error types.
