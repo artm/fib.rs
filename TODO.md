@@ -4,13 +4,13 @@ This project is being developed as a learning exercise. The following plans are 
 
 ## Testing
 
-- [ ] Add tests for every currently supported integer type.
+- [x] Add tests for every currently supported integer type.
   - Verify known Fibonacci values.
   - Test `F(0)` and other small boundary cases.
   - Test the largest index known to fit.
   - Test the first index that does not fit.
 
-- [ ] Add a simpler iterative Fibonacci implementation to use as a reference implementation.
+- [x] Add a simpler iterative Fibonacci implementation to use as a reference implementation.
   - Keep it straightforward rather than optimized.
   - Compare the fast-doubling implementation against it for values that fit.
 
