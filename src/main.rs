@@ -2,7 +2,7 @@ use std::any::type_name;
 use thiserror::Error;
 
 #[expect(clippy::similar_names, reason = "there is a pattern to madness")]
-fn fib<F>(n: u8) -> Result<F, FibError>
+fn fib<F>(n: usize) -> Result<F, FibError>
 where
     F: num_traits::PrimInt + num_traits::Unsigned + FibInteger,
 {
@@ -15,7 +15,7 @@ where
             type_name: type_name::<F>(),
         });
     }
-    let mut mask: u8 = 1 << (u8::BITS - n.leading_zeros() - 1);
+    let mut mask: usize = 1 << (usize::BITS - n.leading_zeros() - 1);
 
     let (mut fib_k, mut fib_k_plus_one) = (F::zero(), F::one());
 
@@ -44,36 +44,39 @@ where
 #[derive(Debug, Error)]
 enum FibError {
     #[error("Fibonacci number F({index}) won't fit in {type_name}")]
-    Overflow { index: u8, type_name: &'static str },
+    Overflow {
+        index: usize,
+        type_name: &'static str,
+    },
 }
 
 trait FibInteger {
-    const MAX_FIB_INDEX: u8;
+    const MAX_FIB_INDEX: usize;
     const TWO: Self;
 }
 
 impl FibInteger for u8 {
-    const MAX_FIB_INDEX: u8 = 13;
+    const MAX_FIB_INDEX: usize = 13;
     const TWO: Self = 2;
 }
 
 impl FibInteger for u16 {
-    const MAX_FIB_INDEX: u8 = 24;
+    const MAX_FIB_INDEX: usize = 24;
     const TWO: Self = 2;
 }
 
 impl FibInteger for u32 {
-    const MAX_FIB_INDEX: u8 = 47;
+    const MAX_FIB_INDEX: usize = 47;
     const TWO: Self = 2;
 }
 
 impl FibInteger for u64 {
-    const MAX_FIB_INDEX: u8 = 93;
+    const MAX_FIB_INDEX: usize = 93;
     const TWO: Self = 2;
 }
 
 impl FibInteger for u128 {
-    const MAX_FIB_INDEX: u8 = 186;
+    const MAX_FIB_INDEX: usize = 186;
     const TWO: Self = 2;
 }
 
