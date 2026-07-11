@@ -39,9 +39,13 @@ $$ F(n+2) = F(n) + F(n+1) $$
 The following table shows the first few values, followed by two consecutive values whose identities
 we want to extend:
 
+<center>
+
 | $n$ | $0$ | $1$ | $2$ | $3$ | $4$ | $5$ | $6$ | ... | $m$ | $m+1$ |
 |---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | $F(n)$ | $0$ | $1$ | $1$ | $2$ | $3$ | $5$ | $8$ | ... | $F(m)$ | $F(m+1)$ |
+
+</center>
 
 Applying the recurrence repeatedly gives the following expressions in terms of $F(m)$ and $F(m+1)$:
 
