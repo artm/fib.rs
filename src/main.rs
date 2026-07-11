@@ -1,7 +1,6 @@
 use std::any::type_name;
 use std::ops::{Add, Mul, Sub};
 use thiserror::Error;
-use uint::construct_uint;
 
 #[expect(clippy::similar_names, reason = "there is a pattern to madness")]
 fn fib<F>(n: usize) -> Result<F, FibError>
@@ -150,30 +149,37 @@ impl FibInteger for u128 {
     }
 }
 
-construct_uint! {
-    pub struct U256(4);
-}
+mod bigint {
+    #![allow(clippy::manual_range_contains)]
+    #![allow(clippy::assign_op_pattern)]
 
-impl FibInteger for U256 {
-    fn zero() -> Self {
-        U256::from(0)
+    use super::{FibFit, FibInteger};
+    use uint::construct_uint;
+
+    construct_uint! {
+        pub struct U256(4);
     }
 
-    fn one() -> Self {
-        U256::from(1)
-    }
+    impl FibInteger for U256 {
+        fn zero() -> Self {
+            U256::from(0)
+        }
 
-    fn fits_fibonacci(index: usize) -> FibFit {
-        if index <= 250 {
-            FibFit::Yes
-        } else {
-            FibFit::Unknown
+        fn one() -> Self {
+            U256::from(1)
+        }
+
+        fn fits_fibonacci(index: usize) -> FibFit {
+            if index <= 250 {
+                FibFit::Yes
+            } else {
+                FibFit::Unknown
+            }
         }
     }
 }
-
 fn main() {
     let n = 250;
-    let fib_n: U256 = fib(n).unwrap_or_else(|error| panic!("{error}"));
+    let fib_n: bigint::U256 = fib(n).unwrap_or_else(|error| panic!("{error}"));
     println!("F({n}) = {fib_n}");
 }
