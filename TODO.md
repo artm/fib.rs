@@ -25,11 +25,11 @@ This project is being developed as a learning exercise. The following plans are 
 
 ## Fit information and type abstraction
 
-- [ ] Add a way for a type to report its maximum Fibonacci index as `Option<usize>`.
+- [x] Add a way for a type to report its maximum Fibonacci index as `Option<usize>`.
   - `Some(index)` represents a known maximum index.
   - `None` represents an unbounded type or a type whose maximum is not known statically.
 
-- [ ] Derive `fits_fibonacci()` from the optional maximum-index information where appropriate.
+- [x] Derive `fits_fibonacci()` from the optional maximum-index information where appropriate.
   - Preserve the ability for types with more complex rules to provide their own implementation.
   - Decide how `Unknown` relates to `None` and to checked arithmetic.
 
