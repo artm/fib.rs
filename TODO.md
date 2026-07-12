@@ -35,11 +35,26 @@ This project is being developed as a learning exercise. The following plans are 
 
 ## Performance
 
-- [ ] Add a benchmarking harness.
+- [x] Add a benchmarking harness.
   - Compare the simple iterative implementation with fast doubling.
   - Measure supported types separately.
   - Include larger indices where the types can represent the result.
   - Record whether arithmetic cost or algorithmic complexity dominates.
+
+- [ ] Use the benchmark results to design a generic algorithm selector.
+  - Determine how a type can communicate which Fibonacci algorithm is most efficient for a given
+    output range.
+  - Choose between simple iteration and fast doubling without duplicating the public API.
+  - Validate that the selector is based on measurements rather than assumptions about complexity
+    alone.
+
+- [ ] Implement and benchmark a hybrid Fibonacci algorithm.
+  - Return pre-calculated results for the smallest indices.
+  - Use simple iteration up to a measured threshold.
+  - Use fast doubling for larger indices.
+  - For a large index, first find a useful starting index and calculate its Fibonacci pair with
+    simple iteration, then continue with fast doubling from that pair.
+  - Compare the hybrid against both existing implementations for every supported numeric type.
 
 ## More numeric types
 
