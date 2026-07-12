@@ -15,6 +15,46 @@ programming concepts fit together in a working program.
 - Testing and linting
 - Implementing and using fixed-width integer types
 
+### Generic programming and numeric choices
+
+The `FibInteger` trait demonstrates how generic programming can separate the Fibonacci algorithm
+from the numeric representation. The same algorithm can be instantiated with a type chosen for the
+input range being used.
+
+That choice can provide a more efficient implementation than having only two alternatives:
+
+- small built-in integers, which are fast but support only a limited range; or
+- an unbounded bigint, which can represent much larger values but may allocate storage as the value
+	grows.
+
+For example, if an application only needs Fibonacci values through a known index, a sufficiently
+wide fixed-width type such as `u128` or `U256` can avoid on-demand allocation while still supporting
+that range. Generic code lets the algorithm work with this specialized type without duplicating the
+Fibonacci logic for every representation. The compiler can then generate a concrete version for the
+chosen type, while the trait records the operations and fit information that the algorithm needs.
+
+This is a useful general programming lesson: an abstraction does not always mean choosing one
+universal implementation. It can also make it easy to choose an implementation whose performance
+and storage characteristics match a particular input range.
+
+### Benchmarking algorithm choices
+
+Benchmarking adds an important qualification to the usual complexity comparison. Fast doubling
+uses $O(\log n)$ arithmetic steps, while simple iteration uses $O(n)$ steps, but the asymptotic
+advantage does not automatically make fast doubling faster for every practical input.
+
+The benchmarks in this project show that, for indices whose results fit in the smaller primitive
+types up to and including `u64`, the simple iterative implementation is faster than or approximately
+as fast as fast doubling. For these relatively small ranges, the extra multiplication and
+subtraction performed by fast doubling can cost more than the additional iterations of the simple
+algorithm. This is a useful reminder that algorithmic complexity describes growth with input size,
+while real performance also depends on constant factors, operation costs, and the numeric type.
+
+The result suggests a possible hybrid implementation: use precomputed small results first, use
+simple iteration through a measured threshold, and use fast doubling beyond that threshold. For a
+large index, the hybrid could first calculate a suitable starting pair with simple iteration and
+then continue with fast doubling, rather than assuming that fast doubling must begin at `F(0)`.
+
 ## Fibonacci algorithm
 
 The project calculates Fibonacci numbers using the **fast-doubling algorithm** rather than the
