@@ -1,9 +1,11 @@
-use super::{FibFit, FibInteger};
+use super::{FibFit, FibInteger, doubling::Doubling, simple::Simple};
 
 macro_rules! impl_fib_integer {
-    ($(($type:ty, $max_index:expr)),+ $(,)?) => {
+    ($(($type:ty, $max_index:expr, $method:ty)),+ $(,)?) => {
         $(
             impl FibInteger for $type {
+                type Method = $method;
+
                 fn zero() -> Self {
                     0
                 }
@@ -33,9 +35,9 @@ macro_rules! impl_fib_integer {
 }
 
 impl_fib_integer! {
-    (u8, 13),
-    (u16, 24),
-    (u32, 47),
-    (u64, 93),
-    (u128, 186),
+    (u8, 13, Simple),
+    (u16, 24, Simple),
+    (u32, 47, Simple),
+    (u64, 93, Simple),
+    (u128, 186, Doubling),
 }

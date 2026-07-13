@@ -1,7 +1,7 @@
 #![allow(clippy::manual_range_contains)]
 #![allow(clippy::assign_op_pattern)]
 
-use super::{FibFit, FibInteger};
+use super::{FibFit, FibInteger, doubling::Doubling};
 use uint::construct_uint;
 
 construct_uint! {
@@ -9,6 +9,8 @@ construct_uint! {
 }
 
 impl FibInteger for U256 {
+    type Method = Doubling;
+
     fn zero() -> Self {
         U256::from(0)
     }
