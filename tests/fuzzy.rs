@@ -1,4 +1,4 @@
-use fib::{FibError, FibInteger, fib, simple};
+use fib::{FibError, FibInteger, doubling, simple};
 use proptest::prelude::*;
 use std::assert_matches;
 
@@ -6,7 +6,7 @@ fn test_fibonacci_invariants<F>(index: usize)
 where
     F: FibInteger + Eq + std::fmt::Debug,
 {
-    let fast = fib::<F>(index);
+    let fast = doubling::fib::<F>(index);
     let simple = simple::fib::<F>(index);
     assert_eq!(fast, simple);
 
@@ -15,8 +15,8 @@ where
     } else if index == 1 {
         assert_eq!(fast, Ok(F::one()));
     } else if index <= F::max_fibonacci_index().unwrap() {
-        let prev_fast = fib::<F>(index - 1).unwrap();
-        let preprev_fast = fib::<F>(index - 2).unwrap();
+        let prev_fast = doubling::fib::<F>(index - 1).unwrap();
+        let preprev_fast = doubling::fib::<F>(index - 2).unwrap();
         assert_eq!(fast.unwrap(), prev_fast + preprev_fast);
     } else {
         assert_matches!(fast, Err(FibError::Overflow { .. }));

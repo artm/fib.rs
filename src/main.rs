@@ -1,4 +1,4 @@
-use fib::{fib, uint};
+use fib::{doubling::fib, uint};
 
 fn main() {
     let n = 7;
