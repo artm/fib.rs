@@ -49,11 +49,24 @@ This project is being developed as a learning exercise. The following plans are 
     alone.
 
 - [ ] Implement and benchmark a hybrid Fibonacci algorithm.
-  - Return pre-calculated results for the smallest indices.
-  - Use simple iteration up to a measured threshold.
-  - Use fast doubling for larger indices.
-  - For a large index, first find a useful starting index and calculate its Fibonacci pair with
-    simple iteration, then continue with fast doubling from that pair.
+  - Define a customizable three-stage policy:
+    1. Use `lookup` for indices through `n1`.
+    2. Use simple iteration for indices through `n2`.
+    3. Use fast doubling for larger indices.
+  - Support lookup tables built at compile time or initialized lazily at startup.
+  - Keep lookup optional so the implementation remains usable in hypothetical memory-constrained
+    environments.
+  - Allow the thresholds and lookup strategy to vary by numeric type and bigint representation.
+  - For a large index, start from a suitable pair produced by lookup or simple iteration before
+    continuing with fast doubling.
+  - Compare the customizable hybrid against both existing implementations for every supported type.
+
+- [ ] Design a `LookUp`/`lookup` abstraction for precomputed Fibonacci values.
+  - Keep the currently measured lookup tables small because the memory cost is negligible on modern
+    systems for the supported fixed-width types.
+  - Preserve the ability to disable or reduce lookup tables when memory is restricted.
+  - Decide whether each type provides compile-time tables, lazy startup tables, or no table.
+  - Document how lookup storage and thresholds interact with dynamically growing bigints.
   - Compare the hybrid against both existing implementations for every supported numeric type.
 
 ## More numeric types
@@ -61,6 +74,8 @@ This project is being developed as a learning exercise. The following plans are 
 - [ ] Support more integer types where useful for the exercise.
   - Consider additional fixed-width integer types or fixed-size bigint types.
   - Document the fit and overflow behavior for each type.
+  - Add fixed-width types `U1024`, `U2048`, and `U4096`.
+  - Benchmark their arithmetic and determine suitable `n1` and `n2` thresholds.
 
 - [ ] Support an unbounded bigint implementation from an external crate.
   - Evaluate an appropriate arbitrary-precision unsigned integer type.
