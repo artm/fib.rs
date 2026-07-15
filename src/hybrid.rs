@@ -56,10 +56,10 @@ where
             k += usize::from(n & mask != 0);
             mask >>= 1;
         }
-        let (mut fib_k, mut fib_k_plus_one) = (
-            simple::fib(k).expect("fibonacci number with index under threshold are available"),
-            simple::fib(k + 1).expect("fibonacci number with index under threshold are available"),
-        );
+        let (mut fib_k, mut fib_k_plus_one) = (F::zero(), F::one());
+        for _ in 0..(k - 1) {
+            (fib_k, fib_k_plus_one) = (fib_k_plus_one, fib_k + fib_k_plus_one);
+        }
 
         loop {
             let fib_2k = fib_k * (F::two() * fib_k_plus_one - fib_k);
