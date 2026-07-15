@@ -1,6 +1,8 @@
 use crate::FibLookup;
 
-use super::{FibFit, FibInteger, doubling::Doubling, lookup::Lookup, simple::Simple};
+use super::{
+    FibFit, FibInteger, doubling::Doubling, hybrid::Hybrid, lookup::Lookup, simple::Simple,
+};
 
 macro_rules! impl_fib_integer {
     ($(($type:ty, $max_index:expr, $method:ty)),+ $(,)?) => {
@@ -41,7 +43,7 @@ impl_fib_integer! {
     (u16, 24, Lookup),
     (u32, 47, Lookup),
     (u64, 93, Simple),
-    (u128, 186, Doubling),
+    (u128, 186, Hybrid<90>),
 }
 
 // could have calculated but just listing know values is ok too

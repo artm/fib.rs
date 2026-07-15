@@ -208,3 +208,43 @@ mod fast_doubling {
         test_index_too_large::<u128>(doubling::fib);
     }
 }
+
+mod hybrid {
+    use super::{test_index_too_large, test_max_index, test_small_well_known};
+    use fib::{hybrid, uint::U256};
+
+    #[test]
+    fn small_well_known_u64() {
+        test_small_well_known::<u64>(hybrid::fib::<u64, 50>);
+    }
+
+    #[test]
+    fn small_well_known_u128() {
+        test_small_well_known::<u128>(hybrid::fib::<u128, 90>);
+    }
+
+    #[test]
+    fn small_well_known_u256() {
+        test_small_well_known::<U256>(hybrid::fib::<U256, 100>);
+    }
+
+    #[test]
+    fn max_index_u64() {
+        test_max_index::<u64>(hybrid::fib::<u64, 50>);
+    }
+
+    #[test]
+    fn max_index_u128() {
+        test_max_index::<u128>(hybrid::fib::<u128, 90>);
+    }
+
+    #[test]
+    fn index_too_large_u64() {
+        test_index_too_large::<u64>(hybrid::fib::<u64, 50>);
+    }
+
+    #[test]
+    fn index_too_large_u128() {
+        test_index_too_large::<u128>(hybrid::fib::<u128, 90>);
+    }
+}

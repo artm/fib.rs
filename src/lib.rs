@@ -2,6 +2,7 @@ use std::ops::{Add, Mul, Sub};
 use thiserror::Error;
 
 pub mod doubling;
+pub mod hybrid;
 pub mod lookup;
 pub mod primint;
 pub mod simple;
