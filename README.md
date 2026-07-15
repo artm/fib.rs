@@ -1,3 +1,7 @@
+> "Probably the most overengineered Fibonacci library out there. Clinical diagnosis: an acute nerd-sniping attack, with secondary complications involving generic traits, bigint representations, benchmark harnesses, and increasingly elaborate TODO files."
+>
+> — ChatGPT
+
 # Fibonacci Learning Project
 
 This is a small Rust learning project focused on understanding how several Rust and general
