@@ -1,14 +1,12 @@
-use fib::FibInteger;
+use fib::{FibInteger, uint::U256};
 
-type FibFn<F> = fn(usize) -> Result<F, fib::FibError>;
-
-fn test_small_well_known<F>(fib: FibFn<F>)
+fn test_small_well_known<F>()
 where
     F: FibInteger + From<u8> + Eq + std::fmt::Debug,
 {
     let fibonaccis = [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55];
     for (i, expected) in fibonaccis.iter().enumerate() {
-        let actual = fib(i).unwrap();
+        let actual = F::fib(i).unwrap();
         assert_eq!(
             F::from(*expected),
             actual,
@@ -17,17 +15,45 @@ where
     }
 }
 
-fn test_max_index<F>(fib: FibFn<F>)
+fn test_recurrence<F>(n: usize)
 where
-    F: FibInteger,
+    F: FibInteger + Eq + std::fmt::Debug,
 {
-    let Some(max_index) = F::max_fibonacci_index() else {
-        return;
-    };
-    assert!(fib(max_index).is_ok());
+    assert!(n > 1);
+    let (a, b, c) = (
+        F::fib(n - 2).unwrap(),
+        F::fib(n - 1).unwrap(),
+        F::fib(n).unwrap(),
+    );
+    assert_ne!(c, F::zero());
+    assert_eq!(a + b, c, "expected F({n}) to be {:?}, got {c:?}", a + b);
 }
 
-fn test_index_too_large<F>(fib: FibFn<F>)
+fn test_one_past_lookup_table<F>()
+where
+    F: FibInteger + Eq + std::fmt::Debug,
+{
+    test_recurrence::<F>(F::lookup_size());
+}
+
+fn test_first_fast_double<F>()
+where
+    F: FibInteger + Eq + std::fmt::Debug,
+{
+    assert!(F::SIMPLE_THRESHOLD < usize::MAX);
+    test_recurrence::<F>(F::SIMPLE_THRESHOLD + 1);
+}
+
+fn test_max_index<F>()
+where
+    F: FibInteger + Eq + std::fmt::Debug,
+{
+    if let Some(n) = F::max_fibonacci_index() {
+        test_recurrence::<F>(n);
+    }
+}
+
+fn test_index_too_large<F>()
 where
     F: FibInteger,
 {
@@ -37,214 +63,105 @@ where
     let Some(index) = max_index.checked_add(1) else {
         return;
     };
-    assert!(fib(index).is_err());
+    assert!(F::fib(index).is_err());
 }
 
-mod simple {
-    use super::{test_index_too_large, test_max_index, test_small_well_known};
-    use fib::{simple, uint::U256};
-
-    #[test]
-    fn small_well_known_u8() {
-        test_small_well_known::<u8>(simple::fib);
-    }
-
-    #[test]
-    fn small_well_known_u16() {
-        test_small_well_known::<u16>(simple::fib);
-    }
-
-    #[test]
-    fn small_well_known_u32() {
-        test_small_well_known::<u32>(simple::fib);
-    }
-
-    #[test]
-    fn small_well_known_u64() {
-        test_small_well_known::<u64>(simple::fib);
-    }
-
-    #[test]
-    fn small_well_known_u128() {
-        test_small_well_known::<u128>(simple::fib);
-    }
-
-    #[test]
-    fn small_well_known_u256() {
-        test_small_well_known::<U256>(simple::fib);
-    }
-
-    #[test]
-    fn max_index_u8() {
-        test_max_index::<u8>(simple::fib);
-    }
-
-    #[test]
-    fn max_index_u16() {
-        test_max_index::<u16>(simple::fib);
-    }
-
-    #[test]
-    fn max_index_u32() {
-        test_max_index::<u32>(simple::fib);
-    }
-
-    #[test]
-    fn max_index_u64() {
-        test_max_index::<u64>(simple::fib);
-    }
-
-    #[test]
-    fn max_index_u128() {
-        test_max_index::<u128>(simple::fib);
-    }
-
-    #[test]
-    fn index_too_large_u8() {
-        test_index_too_large::<u8>(simple::fib);
-    }
-
-    #[test]
-    fn index_too_large_u16() {
-        test_index_too_large::<u16>(simple::fib);
-    }
-
-    #[test]
-    fn index_too_large_u32() {
-        test_index_too_large::<u32>(simple::fib);
-    }
-
-    #[test]
-    fn index_too_large_u64() {
-        test_index_too_large::<u64>(simple::fib);
-    }
-
-    #[test]
-    fn index_too_large_u128() {
-        test_index_too_large::<u128>(simple::fib);
-    }
+#[test]
+fn small_well_known_u8() {
+    test_small_well_known::<u8>();
 }
 
-mod fast_doubling {
-    use super::{test_index_too_large, test_max_index, test_small_well_known};
-    use fib::{doubling, uint::U256};
-    #[test]
-    fn small_well_known_u8() {
-        test_small_well_known::<u8>(doubling::fib);
-    }
-
-    #[test]
-    fn small_well_known_u16() {
-        test_small_well_known::<u16>(doubling::fib);
-    }
-
-    #[test]
-    fn small_well_known_u32() {
-        test_small_well_known::<u32>(doubling::fib);
-    }
-
-    #[test]
-    fn small_well_known_u64() {
-        test_small_well_known::<u64>(doubling::fib);
-    }
-
-    #[test]
-    fn small_well_known_u128() {
-        test_small_well_known::<u128>(doubling::fib);
-    }
-
-    #[test]
-    fn small_well_known_u256() {
-        test_small_well_known::<U256>(doubling::fib);
-    }
-
-    #[test]
-    fn max_index_u8() {
-        test_max_index::<u8>(doubling::fib);
-    }
-
-    #[test]
-    fn max_index_u16() {
-        test_max_index::<u16>(doubling::fib);
-    }
-
-    #[test]
-    fn max_index_u32() {
-        test_max_index::<u32>(doubling::fib);
-    }
-
-    #[test]
-    fn max_index_u64() {
-        test_max_index::<u64>(doubling::fib);
-    }
-
-    #[test]
-    fn max_index_u128() {
-        test_max_index::<u128>(doubling::fib);
-    }
-
-    #[test]
-    fn index_too_large_u8() {
-        test_index_too_large::<u8>(doubling::fib);
-    }
-
-    #[test]
-    fn index_too_large_u16() {
-        test_index_too_large::<u16>(doubling::fib);
-    }
-
-    #[test]
-    fn index_too_large_u32() {
-        test_index_too_large::<u32>(doubling::fib);
-    }
-
-    #[test]
-    fn index_too_large_u64() {
-        test_index_too_large::<u64>(doubling::fib);
-    }
-
-    #[test]
-    fn index_too_large_u128() {
-        test_index_too_large::<u128>(doubling::fib);
-    }
+#[test]
+fn small_well_known_u16() {
+    test_small_well_known::<u16>();
 }
 
-mod hybrid {
-    use super::{test_index_too_large, test_max_index, test_small_well_known};
-    use fib::{hybrid, uint::U256};
+#[test]
+fn small_well_known_u32() {
+    test_small_well_known::<u32>();
+}
 
-    #[test]
-    fn small_well_known_u64() {
-        test_small_well_known::<u64>(hybrid::fib::<u64, 50>);
-    }
+#[test]
+fn small_well_known_u64() {
+    test_small_well_known::<u64>();
+}
 
-    #[test]
-    fn small_well_known_u128() {
-        test_small_well_known::<u128>(hybrid::fib::<u128, 90>);
-    }
+#[test]
+fn small_well_known_u128() {
+    test_small_well_known::<u128>();
+}
 
-    #[test]
-    fn small_well_known_u256() {
-        test_small_well_known::<U256>(hybrid::fib::<U256, 100>);
-    }
+#[test]
+fn small_well_known_u256() {
+    test_small_well_known::<U256>();
+}
 
-    #[test]
-    fn max_index_u64() {
-        test_max_index::<u64>(hybrid::fib::<u64, 50>);
-    }
+#[test]
+fn one_past_lookup_table_u64() {
+    test_one_past_lookup_table::<u64>();
+}
 
-    #[test]
-    fn max_index_u128() {
-        test_max_index::<u128>(hybrid::fib::<u128, 90>);
-    }
+#[test]
+fn one_past_lookup_table_u128() {
+    test_one_past_lookup_table::<u128>();
+}
 
-    #[test]
-    fn index_too_large_u64() {
-        test_index_too_large::<u64>(hybrid::fib::<u64, 50>);
-    }
+#[test]
+fn one_past_lookup_table_u256() {
+    test_one_past_lookup_table::<U256>();
+}
 
-    #[test]
-    fn index_too_large_u128() {
-        test_index_too_large::<u128>(hybrid::fib::<u128, 90>);
-    }
+#[test]
+fn first_fast_double_u128() {
+    test_first_fast_double::<u128>();
+}
+
+#[test]
+fn max_index_u8() {
+    test_max_index::<u8>();
+}
+
+#[test]
+fn max_index_u16() {
+    test_max_index::<u16>();
+}
+
+#[test]
+fn max_index_u32() {
+    test_max_index::<u32>();
+}
+
+#[test]
+fn max_index_u64() {
+    test_max_index::<u64>();
+}
+
+#[test]
+fn max_index_u128() {
+    test_max_index::<u128>();
+}
+
+#[test]
+fn index_too_large_u8() {
+    test_index_too_large::<u8>();
+}
+
+#[test]
+fn index_too_large_u16() {
+    test_index_too_large::<u16>();
+}
+
+#[test]
+fn index_too_large_u32() {
+    test_index_too_large::<u32>();
+}
+
+#[test]
+fn index_too_large_u64() {
+    test_index_too_large::<u64>();
+}
+
+#[test]
+fn index_too_large_u128() {
+    test_index_too_large::<u128>();
 }

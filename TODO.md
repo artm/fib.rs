@@ -41,47 +41,24 @@ This project is being developed as a learning exercise. The following plans are 
   - Include larger indices where the types can represent the result.
   - Record whether arithmetic cost or algorithmic complexity dominates.
 
-- [ ] Use the benchmark results to design a generic algorithm selector.
-  - Determine how a type can communicate which Fibonacci algorithm is most efficient for a given
-    output range.
-  - Choose between simple iteration and fast doubling without duplicating the public API.
-  - Validate that the selector is based on measurements rather than assumptions about complexity
-    alone.
+- [ ] Restore and expand property-based tests for the unified implementation.
+  - Compare `FibInteger::fib()` with an independent iterative reference.
+  - Cover every supported fixed-width type and valid/overflow boundaries.
+  - Add tests for lookup-only, iterative-only, and hybrid threshold configurations.
 
-- [ ] Implement and benchmark a hybrid Fibonacci algorithm.
-  - Define a customizable three-stage policy:
-    1. Use `lookup` for indices through `n1`.
-    2. Use simple iteration for indices through `n2`.
-    3. Use fast doubling for larger indices.
-  - Support lookup tables built at compile time or initialized lazily at startup.
-  - Keep lookup optional so the implementation remains usable in hypothetical memory-constrained
-    environments.
-  - Allow the thresholds and lookup strategy to vary by numeric type and bigint representation.
-  - For a large index, start from a suitable pair produced by lookup or simple iteration before
-    continuing with fast doubling.
-  - Do not obtain that starting pair by calling the scalar `fib()` function twice: the initial
-    `u128` experiment showed that two `simple::fib()` calls can make the hybrid slower than either
-    standalone algorithm.
-  - Add a paired-result operation for algorithms that can efficiently produce consecutive values,
-    such as `(F(n), F(n + 1))`.
-  - Compare the customizable hybrid against both existing implementations for every supported type.
+- [ ] Benchmark the unified `FibInteger::fib()` policy by type.
+  - Sweep lookup-table sizes and `SIMPLE_THRESHOLD` values rather than benchmarking only one
+    maximum index per type.
+  - Include lookup-only, iterative-only, lookup-plus-iteration, lookup-plus-doubling, and the
+    full lookup-plus-iteration-plus-doubling configurations where they are representable.
+  - Measure both cold boundary cases and representative interior indices.
+  - Include arithmetic cost for `u64`, `u128`, and `U256` separately.
 
-- [ ] Define an algorithm operation for returning consecutive Fibonacci values.
-  - Decide whether the operation should be part of `FibMethod`, a separate trait, or an internal
-    helper used by the hybrid implementation.
-  - Support a result such as `(F(n), F(n + 1))` without calculating `F(n)` and `F(n + 1)`
-    independently.
-  - Implement the paired operation for simple iteration so one pass produces both values.
-  - Implement or reuse the paired fast-doubling operation where it naturally produces both values.
-  - Add tests comparing paired results with two scalar calls and with the reference implementation.
-
-- [ ] Design a `LookUp`/`lookup` abstraction for precomputed Fibonacci values.
-  - Keep the currently measured lookup tables small because the memory cost is negligible on modern
-    systems for the supported fixed-width types.
-  - Preserve the ability to disable or reduce lookup tables when memory is restricted.
-  - Decide whether each type provides compile-time tables, lazy startup tables, or no table.
-  - Document how lookup storage and thresholds interact with dynamically growing bigints.
-  - Compare the hybrid against both existing implementations for every supported numeric type.
+- [ ] Validate and document the unified policy contract.
+  - Define the relationship between `lookup_size()` and the values returned by `lookup()`.
+  - Define whether `SIMPLE_THRESHOLD` is inclusive.
+  - Handle thresholds of `0`, `1`, and `usize::MAX` without underflow or overflow.
+  - Decide how `FibFit::Unknown` is checked before fixed-width arithmetic can overflow.
 
 ## More numeric types
 

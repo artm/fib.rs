@@ -1,61 +1,56 @@
-use fib::{FibError, FibInteger, doubling, simple};
+use fib::FibInteger;
 use proptest::prelude::*;
-use std::assert_matches;
 
-fn test_fibonacci_invariants<F>(index: usize)
+fn reference_fibonacci<F>(index: usize) -> F
+where
+    F: FibInteger,
+{
+    let mut current = F::zero();
+    let mut next = F::one();
+
+    for _ in 1..index {
+        (current, next) = (next, current + next);
+    }
+
+    if index == 0 { current } else { next }
+}
+
+fn test_fibonacci_matches_reference<F>(index: usize)
 where
     F: FibInteger + Eq + std::fmt::Debug,
 {
-    let fast = doubling::fib::<F>(index);
-    let simple = simple::fib::<F>(index);
-    assert_eq!(fast, simple);
-
-    if index == 0 {
-        assert_eq!(fast, Ok(F::zero()));
-    } else if index == 1 {
-        assert_eq!(fast, Ok(F::one()));
-    } else if index <= F::max_fibonacci_index().unwrap() {
-        let prev_fast = doubling::fib::<F>(index - 1).unwrap();
-        let preprev_fast = doubling::fib::<F>(index - 2).unwrap();
-        assert_eq!(fast.unwrap(), prev_fast + preprev_fast);
+    if let Some(max_index) = F::max_fibonacci_index()
+        && index > max_index
+    {
+        assert!(F::fib(index).is_err());
     } else {
-        assert_matches!(fast, Err(FibError::Overflow { .. }));
+        assert_eq!(F::fib(index), Ok(reference_fibonacci(index)));
     }
 }
 
 proptest! {
     #[test]
-    fn test_fibonacci_invariants_u8(
-        index in 0..200usize
-    ) {
-        test_fibonacci_invariants::<u8>(index);
+    fn fibonacci_matches_reference_u8(index in 0..200usize) {
+        test_fibonacci_matches_reference::<u8>(index);
     }
 
     #[test]
-    fn test_fibonacci_invariants_u16(
-        index in 0..200usize
-    ) {
-        test_fibonacci_invariants::<u16>(index);
+    fn fibonacci_matches_reference_u16(index in 0..200usize) {
+        test_fibonacci_matches_reference::<u16>(index);
     }
 
     #[test]
-    fn test_fibonacci_invariants_u32(
-        index in 0..200usize
-    ) {
-        test_fibonacci_invariants::<u32>(index);
+    fn fibonacci_matches_reference_u32(index in 0..200usize) {
+        test_fibonacci_matches_reference::<u32>(index);
     }
 
     #[test]
-    fn test_fibonacci_invariants_u64(
-        index in 0..200usize
-    ) {
-        test_fibonacci_invariants::<u64>(index);
+    fn fibonacci_matches_reference_u64(index in 0..200usize) {
+        test_fibonacci_matches_reference::<u64>(index);
     }
 
     #[test]
-    fn test_fibonacci_invariants_u128(
-        index in 0..200usize
-    ) {
-        test_fibonacci_invariants::<u128>(index);
+    fn fibonacci_matches_reference_u128(index in 0..200usize) {
+        test_fibonacci_matches_reference::<u128>(index);
     }
 }

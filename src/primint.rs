@@ -1,14 +1,14 @@
-use crate::FibLookup;
-
-use super::{
-    FibFit, FibInteger, doubling::Doubling, hybrid::Hybrid, lookup::Lookup, simple::Simple,
-};
+use super::{FibFit, FibInteger};
 
 macro_rules! impl_fib_integer {
-    ($(($type:ty, $max_index:expr, $method:ty)),+ $(,)?) => {
+    (@simple_threshold) => {};
+    (@simple_threshold $simple_threshold:expr) => {
+        const SIMPLE_THRESHOLD: usize = $simple_threshold;
+    };
+    ($(($type:ty, $max_index:expr, $lookup:expr $(, $simple_threshold:expr)?)),+ $(,)?) => {
         $(
             impl FibInteger for $type {
-                type Method = $method;
+                impl_fib_integer!(@simple_threshold $($simple_threshold)?);
 
                 fn zero() -> Self {
                     0
@@ -33,35 +33,29 @@ macro_rules! impl_fib_integer {
                         FibFit::No
                     }
                 }
+
+                fn lookup_size() -> usize {
+                    $lookup.len()
+                }
+
+                fn lookup(n: usize) -> Option<Self> {
+                    $lookup.get(n).copied()
+                }
             }
         )+
     };
 }
 
 impl_fib_integer! {
-    (u8, 13, Lookup),
-    (u16, 24, Lookup),
-    (u32, 47, Lookup),
-    (u64, 93, Simple),
-    (u128, 186, Hybrid<90>),
+    (u8, 13, LOOKUP_U8),
+    (u16, 24, LOOKUP_U16),
+    (u32, 47, LOOKUP_U32),
+    (u64, 93, LOOKUP_U64),
+    (u128, 186, LOOKUP_U128, 90),
 }
 
 // could have calculated but just listing know values is ok too
 const LOOKUP_U8: [u8; 14] = [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233];
-
-impl FibLookup for u8 {
-    fn lookup(n: usize) -> Option<Self> {
-        if n < Self::lookup_size() {
-            Some(LOOKUP_U8[n])
-        } else {
-            None
-        }
-    }
-
-    fn lookup_size() -> usize {
-        LOOKUP_U8.len()
-    }
-}
 
 // pre-calculate all values at compile time
 const LOOKUP_U16: [u16; 25] = {
@@ -76,20 +70,6 @@ const LOOKUP_U16: [u16; 25] = {
     values
 };
 
-impl FibLookup for u16 {
-    fn lookup(n: usize) -> Option<Self> {
-        if n < Self::lookup_size() {
-            Some(LOOKUP_U16[n])
-        } else {
-            None
-        }
-    }
-
-    fn lookup_size() -> usize {
-        LOOKUP_U16.len()
-    }
-}
-
 const LOOKUP_U32: [u32; 48] = {
     let mut values = [0; 48];
     values[0] = 0;
@@ -102,16 +82,26 @@ const LOOKUP_U32: [u32; 48] = {
     values
 };
 
-impl FibLookup for u32 {
-    fn lookup(n: usize) -> Option<Self> {
-        if n < Self::lookup_size() {
-            Some(LOOKUP_U32[n])
-        } else {
-            None
-        }
+const LOOKUP_U64: [u64; 48] = {
+    let mut values = [0; 48];
+    values[0] = 0;
+    values[1] = 1;
+    let mut i = 2;
+    while i < values.len() {
+        values[i] = values[i - 1] + values[i - 2];
+        i += 1;
     }
+    values
+};
 
-    fn lookup_size() -> usize {
-        LOOKUP_U32.len()
+const LOOKUP_U128: [u128; 48] = {
+    let mut values = [0; 48];
+    values[0] = 0;
+    values[1] = 1;
+    let mut i = 2;
+    while i < values.len() {
+        values[i] = values[i - 1] + values[i - 2];
+        i += 1;
     }
-}
+    values
+};
