@@ -2,6 +2,7 @@ use std::ops::{Add, Mul, Sub};
 use thiserror::Error;
 
 pub mod doubling;
+pub mod lookup;
 pub mod primint;
 pub mod simple;
 pub mod uint;
@@ -55,6 +56,11 @@ pub trait FibInteger:
     fn two() -> Self {
         Self::one() + Self::one()
     }
+}
+
+pub trait FibLookup: FibInteger {
+    fn lookup(n: usize) -> Option<Self>;
+    fn lookup_size() -> usize;
 }
 
 pub trait FibMethod<F>
